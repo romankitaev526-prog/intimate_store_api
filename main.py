@@ -19,3 +19,8 @@ def get_db():
 def get_products(db: Session = Depends(get_db)):
     products = db.query(Product).all()
     return products
+
+@app.get("/products/{product_id}", response_model=ProductResponse)
+def get_product(product_id: int, db: Session = Depends(get_db)):
+    product = db.query(Product).filter(Product.id == product_id).first()
+    return product
