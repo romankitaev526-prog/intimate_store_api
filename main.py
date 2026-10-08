@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends
 from database import SessionLocal
 from sqlalchemy.orm import Session
 from models import Product
+from schemas import ProductResponse
 
 app = FastAPI()
 
@@ -14,7 +15,7 @@ def get_db():
         db.close()
 
 
-@app.get("/products")
+@app.get("/products", response_model=list[ProductResponse])
 def get_products(db: Session = Depends(get_db)):
     products = db.query(Product).all()
     return products
