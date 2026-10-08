@@ -15,3 +15,21 @@ class ProductResponse(BaseModel):
     suppliers_id: int | None = Field(default=None, title="Поставщик")
 
     model_config = {"from_attributes": True}
+
+class ProductCreate(BaseModel):
+    name: str
+    brand: str | None = None
+    price: Decimal | None = None
+    category_id: int | None = None
+    purchase_date: date | None = None
+    description: str | None = None
+    suppliers_id: int | None = None
+
+class ProductUpdate(BaseModel):
+    name: str | None = None
+    brand: str | None = None
+    price: Decimal | None = None
+    category_id: int | None = None
+    purchase_date: date | None = None
+    description: str | None = None
+    suppliers_id: int | None = None
