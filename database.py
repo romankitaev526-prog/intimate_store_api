@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
 from urllib.parse import quote_plus
 from dotenv import load_dotenv
 import os
@@ -13,3 +14,6 @@ if not PASSWORD:
 DATABASE_URL = f"mysql+pymysql://Kit:{quote_plus(PASSWORD)}@localhost:3306/sex_toys"
 
 engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(bind=engine)
+
+Base = declarative_base()
