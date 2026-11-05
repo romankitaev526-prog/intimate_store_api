@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#17131f">
+    <title>Intimate Store — каталог</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/script.js" defer></script>
+
+    <style>
+        .header-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .auth-button, .account-button {
+            border: 1px solid #51415e;
+            border-radius: 10px;
+            padding: 10px 14px;
+            background: #211a2b;
+            color: #fff;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .auth-button:hover, .account-button:hover {
+            border-color: #c58aff;
+        }
+
+        .auth-button.primary {
+            background: #a855f7;
+            border-color: #a855f7;
+        }
+
+        #authDialog, #accountDialog {
+            box-sizing: border-box;
+            width: min(440px, calc(100% - 24px));
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px;
+            border: 1px solid #51415e;
+            border-radius: 18px;
+            background: #17131f;
+            color: #fff;
+        }
+
+        #authDialog::backdrop,
+        #accountDialog::backdrop,
+        #cartDialog::backdrop {
+            background: rgb(0 0 0 / 70%);
+            backdrop-filter: blur(4px);
+        }
+
+        .dialog-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .dialog-heading h2 {
+            margin: 0;
+        }
+
+        .dialog-close {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border: 1px solid #51415e;
+            border-radius: 10px;
+            background: #211a2b;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .auth-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .auth-tab {
+            padding: 11px;
+            border: 1px solid #51415e;
+            border-radius: 10px;
+            background: #211a2b;
+            color: #fff;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .auth-tab.active {
+            border-color: #c58aff;
+            background: #382344;
+        }
+
+        .auth-form, .checkout-form {
+            display: grid;
+            gap: 14px;
+        }
+
+        .auth-field, .checkout-field {
+            display: grid;
+            gap: 6px;
+        }
+
+        .auth-field label, .checkout-field label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .auth-field input,
+        .checkout-field input,
+        .auth-field textarea,
+        .checkout-field textarea {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #51415e;
+            border-radius: 10px;
+            background: #211a2b;
+            color: #fff;
+            font: inherit;
+        }
+
+        .auth-field input:focus,
+        .checkout-field input:focus,
+        .auth-field textarea:focus,
+        .checkout-field textarea:focus {
+            outline: 2px solid #c58aff;
+            outline-offset: 1px;
+        }
+
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .password-wrapper input {
+            padding-right: 48px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: #c58aff;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .toggle-password:hover {
+            color: #fff;
+            background: #382344;
+        }
+
+        .toggle-password:focus-visible {
+            outline: 2px solid #c58aff;
+            outline-offset: 1px;
+        }
+
+        .auth-submit, #checkoutButton {
+            width: 100%;
+            padding: 12px;
+        }
+
+        .auth-message, #checkoutMessage {
+            min-height: 1em;
+            overflow-wrap: anywhere;
+            font-size: 14px;
+        }
+
+        .auth-message.error, #checkoutMessage.error {
+            color: #ff899b;
+        }
+
+        .auth-message.success {
+            color: #86efac;
+        }
+
+        .auth-note, .checkout-hint {
+            font-size: 13px;
+            line-height: 1.5;
+            opacity: .75;
+        }
+
+        .account-info {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-wrap: anywhere;
+        }
+
+        .account-info p {
+            margin: 0;
+        }
+
+        .account-orders {
+            display: grid;
+            gap: 12px;
+        }
+
+        .account-order {
+            padding: 14px;
+            border: 1px solid #51415e;
+            border-radius: 12px;
+            background: #211a2b;
+        }
+
+        .account-order p {
+            margin: 5px 0;
+            overflow-wrap: anywhere;
+        }
+
+        .dialog-action {
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .checkout-form {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #403448;
+        }
+
+        .checkout-form h3 {
+            margin: 0;
+        }
+
+        .checkout-field textarea {
+            min-height: 85px;
+            resize: vertical;
+        }
+
+        #continueShopping {
+            width: 100%;
+        }
+
+        #checkoutButton:disabled,
+        .auth-submit:disabled {
+            cursor: not-allowed;
+            opacity: .6;
+        }
+
+        .account-edit {
+            display: grid;
+            gap: 10px;
+            margin: 16px 0;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        @media (max-width: 650px) {
+            .site-header {
+                gap: 12px;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .auth-button, .account-button, .cart-button {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<header class="site-header">
+    <a class="logo" href="/">Intimate<span>Store</span></a>
+
+    <label class="search">
+        <span class="visually-hidden">Поиск товаров</span>
+        <input
+            type="search"
+            id="searchInput"
+            placeholder="Найти товар..."
+            autocomplete="off"
+        >
+    </label>
+
+    <div class="header-actions">
+        <div id="guestActions">
+            <button class="auth-button" id="openLogin" type="button">
+                Войти
+            </button>
+            <button class="auth-button primary" id="openRegister" type="button">
+                Регистрация
+            </button>
+        </div>
+
+        <button
+            class="account-button"
+            id="accountButton"
+            type="button"
+            hidden
+        >
+            Мой аккаунт
+        </button>
+
+        <button
+            class="account-button"
+            id="adminButton"
+            type="button"
+            hidden
+        >
+            Админ-панель
+        </button>
+
+        <button class="cart-button" id="cartButton" type="button">
+            Корзина <span id="cartCount">0</span>
+        </button>
+    </div>
+</header>
+
+<main class="container">
+    <section class="hero">
+        <p class="eyebrow">ТВОЙ КОМФОРТ · ТВОЙ ВЫБОР</p>
+        <h1>Открой свою<br>сторону удовольствия</h1>
+        <p>Исследуй каталог и выбирай то, что подходит именно тебе.</p>
+    </section>
+
+    <section class="catalog" id="catalog">
+        <div class="catalog-heading">
+            <div>
+                <p class="eyebrow">НАША КОЛЛЕКЦИЯ</p>
+                <h2>Каталог товаров</h2>
+            </div>
+            <span id="productCount">Загрузка...</span>
+        </div>
+
+        <div class="categories" id="categories">
+            <button class="category active" data-category="Все" type="button">
+                Все товары
+            </button>
+        </div>
+
+        <div class="product-grid" id="productGrid">
+            <p class="loading">Загружаем товары...</p>
+        </div>
+
+        <p class="message" id="message" role="status"></p>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <p>Intimate Store</p>
+    <p>Личное пространство твоего комфорта.</p>
+</footer>
+
+<dialog id="authDialog">
+    <div class="dialog-heading">
+        <h2 id="authTitle">Вход в аккаунт</h2>
+        <button class="dialog-close" id="closeAuth" type="button" aria-label="Закрыть">✕</button>
+    </div>
+
+    <div class="auth-tabs">
+        <button class="auth-tab active" id="loginTab" type="button">Войти</button>
+        <button class="auth-tab" id="registerTab" type="button">Регистрация</button>
+    </div>
+
+    <form id="loginForm" class="auth-form">
+        <div class="auth-field">
+            <label for="loginEmail">Электронная почта</label>
+            <input id="loginEmail" name="email" type="email" maxlength="254" autocomplete="email" placeholder="name@example.com" required>
+        </div>
+
+        <div class="auth-field">
+            <label for="loginPassword">Пароль</label>
+            <div class="password-wrapper">
+                <input id="loginPassword" name="password" type="password" maxlength="128" autocomplete="current-password" placeholder="Твой пароль" required>
+                <button class="toggle-password" type="button" data-password-target="loginPassword" aria-label="Показать пароль" aria-pressed="false">👁</button>
+            </div>
+        </div>
+
+        <p id="loginMessage" class="auth-message" role="status" aria-live="polite"></p>
+        <button class="cart-button auth-submit" id="loginSubmit" type="submit">Войти</button>
+    </form>
+
+    <form id="registerForm" class="auth-form" hidden>
+        <div class="auth-field">
+            <label for="registerName">Имя</label>
+            <input id="registerName" name="name" type="text" minlength="2" maxlength="100" autocomplete="name" placeholder="Как тебя зовут" required>
+        </div>
+
+        <div class="auth-field">
+            <label for="registerPhone">Телефон (необязательно)</label>
+            <input id="registerPhone" name="phone" type="tel" maxlength="30" autocomplete="tel" placeholder="+7 999 123-45-67">
+        </div>
+
+        <div class="auth-field">
+            <label for="registerEmail">Электронная почта</label>
+            <input id="registerEmail" name="email" type="email" maxlength="254" autocomplete="email" placeholder="name@example.com" required>
+        </div>
+
+        <div class="auth-field">
+            <label for="registerPassword">Пароль</label>
+            <div class="password-wrapper">
+                <input id="registerPassword" name="password" type="password" minlength="8" maxlength="128" autocomplete="new-password" placeholder="Не менее 8 символов" required>
+                <button class="toggle-password" type="button" data-password-target="registerPassword" aria-label="Показать пароль" aria-pressed="false">👁</button>
+            </div>
+        </div>
+
+        <p class="auth-note">
+            После регистрации на почту придёт ссылка для подтверждения.
+            Войти можно будет после подтверждения адреса.
+        </p>
+
+        <p id="registerMessage" class="auth-message" role="status" aria-live="polite"></p>
+        <button class="cart-button auth-submit" id="registerSubmit" type="submit">Создать аккаунт</button>
+    </form>
+
+    <form id="resendVerificationForm" class="auth-form" hidden>
+        <p class="auth-note">
+            Не пришло письмо? Укажи email и пароль аккаунта,
+            чтобы запросить новую ссылку подтверждения.
+        </p>
+
+        <div class="auth-field">
+            <label for="resendEmail">Электронная почта</label>
+            <input id="resendEmail" type="email" autocomplete="email" required maxlength="254">
+        </div>
+
+        <div class="auth-field">
+            <label for="resendPassword">Пароль</label>
+            <div class="password-wrapper">
+                <input id="resendPassword" type="password" autocomplete="current-password" required maxlength="128">
+                <button class="toggle-password" type="button" data-password-target="resendPassword" aria-label="Показать пароль" aria-pressed="false">👁</button>
+            </div>
+        </div>
+
+        <p id="resendMessage" class="auth-message" role="status" aria-live="polite"></p>
+        <button class="cart-button auth-submit" id="resendSubmit" type="submit">Отправить письмо повторно</button>
+        <button class="category" id="backToLogin" type="button">Назад ко входу</button>
+    </form>
+</dialog>
+
+<dialog id="accountDialog">
+    <div class="dialog-heading">
+        <h2>Мой аккаунт</h2>
+        <button class="dialog-close" id="closeAccount" type="button" aria-label="Закрыть">✕</button>
+    </div>
+
+    <div class="account-info">
+        <p><strong id="accountName"></strong></p>
+        <p id="accountEmail"></p>
+        <p id="accountPhone"></p>
+    </div>
+
+    <form id="profileForm" class="account-edit">
+        <div class="auth-field">
+            <label for="profilePhone">Телефон в профиле (необязательно)</label>
+            <input id="profilePhone" type="tel" maxlength="30" autocomplete="tel" placeholder="+7 999 123-45-67">
+        </div>
+
+        <p id="profileMessage" class="auth-message" role="status" aria-live="polite"></p>
+        <button class="cart-button" id="saveProfileButton" type="submit">Сохранить телефон</button>
+    </form>
+
+    <h3>Мои заказы</h3>
+    <div id="accountOrders" class="account-orders">
+        <p>Загрузка заказов...</p>
+    </div>
+
+    <p id="accountMessage" class="auth-message" role="status" aria-live="polite"></p>
+    <button class="category dialog-action" id="logoutButton" type="button">Выйти из аккаунта</button>
+</dialog>
+
+<dialog id="cartDialog" class="cart-dialog">
+    <div class="cart-heading">
+        <h2>Корзина</h2>
+        <button id="closeCart" type="button" aria-label="Закрыть">✕</button>
+    </div>
+
+    <div id="cartItems"></div>
+    <p id="cartTotal">Итого: 0 ₽</p>
+
+    <form id="checkoutForm" class="checkout-form">
+        <h3>Оформление заказа</h3>
+
+        <p class="checkout-hint">
+            Для оформления заказа необходимо войти в аккаунт.
+        </p>
+
+        <div class="checkout-field">
+            <label for="customerName">Имя и фамилия *</label>
+            <input id="customerName" name="customer_name" type="text" maxlength="100" autocomplete="name" placeholder="Как к тебе обращаться" required>
+        </div>
+
+        <div class="checkout-field">
+            <label for="customerPhone">Телефон для этого заказа (необязательно)</label>
+            <input id="customerPhone" name="phone" type="tel" maxlength="30" autocomplete="tel" placeholder="+7 999 123-45-67">
+        </div>
+
+        <div class="checkout-field">
+            <label for="customerAddress">Адрес доставки *</label>
+            <textarea id="customerAddress" name="address" autocomplete="street-address" placeholder="Город, улица, дом, квартира" required></textarea>
+        </div>
+
+        <p id="checkoutMessage" class="message" role="status" aria-live="polite"></p>
+        <button class="cart-button" id="checkoutButton" type="submit">Оформить заказ</button>
+        <button class="category" id="continueShopping" type="button">Продолжить покупки</button>
+    </form>
+</dialog>
+
+<script>
+    document.querySelectorAll(".toggle-password").forEach((button) => {
+        button.addEventListener("click", () => {
+            const input = document.getElementById(button.dataset.passwordTarget);
+            if (!input) return;
+
+            const showPassword = input.type === "password";
+            input.type = showPassword ? "text" : "password";
+            button.setAttribute("aria-label", showPassword ? "Скрыть пароль" : "Показать пароль");
+            button.setAttribute("aria-pressed", String(showPassword));
+            button.textContent = showPassword ? "🙈" : "👁";
+        });
+    });
+</script>
+</body>
+</html>

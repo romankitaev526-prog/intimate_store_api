@@ -1,3 +1,18 @@
 venv/
 __pycache__/
 .env
+# IDE
+.idea/
+.vscode/
+
+# Python
+*.py[cod]
+.pytest_cache/
+
+# Environment
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
